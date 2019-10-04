@@ -30,3 +30,16 @@
 *.exe
 *.out
 *.app
+
+# Folders
+*.vscode
+*.git
+*.vs
+*.cppcheck
+
+Build
+Intermediate
+
+.*
+
+*.vcxproj.user
