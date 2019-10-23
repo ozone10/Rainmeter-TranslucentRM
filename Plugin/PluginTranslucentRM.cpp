@@ -43,7 +43,7 @@ void SetWindowAccent(struct ChildMeasure* measure, HWND hwnd)
     if (validWinVersion &&
         !measure->parent->errorUser32 &&
         (!measure->parent->taskbar ||
-            measure->accentState != AccentTypes::ACCENT_DISABLE))
+            measure->accentState != AccentTypes::ACCENT_DISABLED))
     {
         using SWCA = bool(WINAPI*)(HWND, WINCOMPATTRDATA*);
         const auto _SetWindowCompositionAttribute = reinterpret_cast<SWCA>(GetProcAddress(hUser32, "SetWindowCompositionAttribute"));
@@ -232,11 +232,14 @@ void SetType(struct Measure* measure, void* rm)
         SetMinTransparency(measure);
         break;
     case 4:
-        measure->accentState = AccentTypes::ACCENT_ENABLE_FLUENT;
+        measure->accentState = AccentTypes::ACCENT_ENABLE_ACRYLICBLURBEHIND;
         SetMinTransparency(measure);
         break;
+    case 6:
+        measure->accentState = AccentTypes::ACCENT_ENABLE_TRANSPARENT;
+        break;
     default:
-        measure->accentState = AccentTypes::ACCENT_DISABLE;
+        measure->accentState = AccentTypes::ACCENT_DISABLED;
     }
 
     measure->usedState = measure->accentState;
@@ -318,7 +321,7 @@ void InitChildMeasure(struct ChildMeasure* childMeasure, void* rm)
 
 void CheckFeaturesSupport(struct Measure* measure, void* rm)
 {
-    bool useAcrylic = measure->accentState == AccentTypes::ACCENT_ENABLE_FLUENT;
+    bool useAcrylic = measure->accentState == AccentTypes::ACCENT_ENABLE_ACRYLICBLURBEHIND;
 
     if (useAcrylic) {
         if (IsAtLeastWin10Build(BUILD_1903)) {
@@ -493,7 +496,7 @@ PLUGIN_EXPORT void Finalize(void* data)
         parent->ownerChild == child)
     {
         if (!child->parent->errorUser32) {
-            child->accentState = AccentTypes::ACCENT_DISABLE;
+            child->accentState = AccentTypes::ACCENT_DISABLED;
             child->flags = 0;
 
             if (parent->taskbar) {

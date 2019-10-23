@@ -1,4 +1,4 @@
-#define PLUGIN_VERSION "0.1.1.0"
+#define PLUGIN_VERSION "0.1.2.0"
 #define PLUGIN_AUTHOR "oZone"
 #define PLUGIN_YEAR 2019
 // Has to be the same as the project name!

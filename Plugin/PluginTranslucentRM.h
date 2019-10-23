@@ -32,16 +32,18 @@ const uint32_t WCA_ACCENT_POLICY = 19;
 
 const int DEFAULT_MONITOR_COUNT = 5;
 
-enum class AccentTypes {
-    ACCENT_DISABLE,
-    ACCENT_ENABLE_GRADIENT,
-    ACCENT_ENABLE_TRANSPARENTGRADIENT,
-    ACCENT_ENABLE_BLURBEHIND,
-    ACCENT_ENABLE_FLUENT
+enum class AccentTypes : int {
+    ACCENT_DISABLED = 0,
+    ACCENT_ENABLE_GRADIENT = 1,
+    ACCENT_ENABLE_TRANSPARENTGRADIENT = 2,
+    ACCENT_ENABLE_BLURBEHIND = 3,
+    ACCENT_ENABLE_ACRYLICBLURBEHIND = 4,
+    ACCENT_ENABLE_HOSTBACKDROP = 5,
+    ACCENT_ENABLE_TRANSPARENT = 6
 };
 
 struct ACCENTPOLICY {
-    AccentTypes nAccentState = AccentTypes::ACCENT_DISABLE;
+    AccentTypes nAccentState = AccentTypes::ACCENT_DISABLED;
     int32_t nFlags = 0;
     uint32_t nColor = 0;
     int32_t nAnimationId = 0;
@@ -64,8 +66,8 @@ struct DWMCOLORIZATIONPARAMS {
 };
 
 struct Measure {
-    AccentTypes accentState = AccentTypes::ACCENT_DISABLE;
-    AccentTypes usedState = AccentTypes::ACCENT_DISABLE;
+    AccentTypes accentState = AccentTypes::ACCENT_DISABLED;
+    AccentTypes usedState = AccentTypes::ACCENT_DISABLED;
     HWND handle = nullptr;
     uint32_t color = MIN_TRANPARENCY;
     std::wstring hexColor = L"";
