@@ -19,5 +19,5 @@ goto Continue
 :Continue
 call "C:\Program Files (x86)\Microsoft Visual Studio\2019\%Edition%\VC\Auxiliary\Build\vcvarsall.bat" x86_amd64
 set solutionsFile=".\SDK-CPP.sln"
-devenv %solutionsFile% /build "Release|x64"
-devenv %solutionsFile% /build "Release|Win32"
+msbuild  /t:build /p:Configuration=Release;Platform=x64 %solutionsFile%
+msbuild  /t:build /p:Configuration=Release;Platform=Win32 %solutionsFile%
