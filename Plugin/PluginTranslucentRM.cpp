@@ -325,7 +325,7 @@ void CheckFeaturesSupport(struct Measure* measure, void* rm)
 
     if (useAcrylic) {
         if (IsAtLeastWin10Build(BUILD_1903)) {
-            RmLog(rm, LOG_DEBUG, L"On Windows 10 1903 (May 2019 update, 10.0.18362) when using acrylic (Type=4), dragging skin will be slow.");
+            RmLog(rm, LOG_DEBUG, L"On Windows 10 1903 (May 2019 update, 10.0.18362) and later when using acrylic (Type=4), dragging skin will be slow.");
         }
 
         if (!IsAtLeastWin10Build(BUILD_1803)) {
@@ -504,7 +504,7 @@ PLUGIN_EXPORT void Finalize(void* data)
                     SetTaskbars(parent, false);
                 }
                 else {
-                    SendMessageW(parent->ownerChild->handle, WM_THEMECHANGED, NULL, NULL);
+                    SendMessageW(parent->taskbars.at(0), WM_THEMECHANGED, NULL, NULL);
                 }
                 std::vector<HWND>().swap(parent->taskbars);
             }
