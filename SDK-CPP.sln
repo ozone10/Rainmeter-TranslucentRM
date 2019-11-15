@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.3.29503.13
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Plugin", "Plugin\Plugin.vcxproj", "{64FDEE97-6B7E-40E5-A489-ECA322825BC8}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TranslucentRM", "Plugin\PluginTranslucentRM.vcxproj", "{64FDEE97-6B7E-40E5-A489-ECA322825BC8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,6 +11,8 @@ Global
 		Debug|x64 = Debug|x64
 		Release|Win32 = Release|Win32
 		Release|x64 = Release|x64
+		ReleaseMD|Win32 = ReleaseMD|Win32
+		ReleaseMD|x64 = ReleaseMD|x64
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{64FDEE97-6B7E-40E5-A489-ECA322825BC8}.Debug|Win32.ActiveCfg = Debug|Win32
@@ -21,8 +23,15 @@ Global
 		{64FDEE97-6B7E-40E5-A489-ECA322825BC8}.Release|Win32.Build.0 = Release|Win32
 		{64FDEE97-6B7E-40E5-A489-ECA322825BC8}.Release|x64.ActiveCfg = Release|x64
 		{64FDEE97-6B7E-40E5-A489-ECA322825BC8}.Release|x64.Build.0 = Release|x64
+		{64FDEE97-6B7E-40E5-A489-ECA322825BC8}.ReleaseMD|Win32.ActiveCfg = ReleaseMD|Win32
+		{64FDEE97-6B7E-40E5-A489-ECA322825BC8}.ReleaseMD|Win32.Build.0 = ReleaseMD|Win32
+		{64FDEE97-6B7E-40E5-A489-ECA322825BC8}.ReleaseMD|x64.ActiveCfg = ReleaseMD|x64
+		{64FDEE97-6B7E-40E5-A489-ECA322825BC8}.ReleaseMD|x64.Build.0 = ReleaseMD|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {FAEA3EE3-D5CE-4F0A-A39C-E2C1B4C83433}
 	EndGlobalSection
 EndGlobal
