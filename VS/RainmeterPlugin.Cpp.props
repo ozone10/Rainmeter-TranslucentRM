@@ -23,6 +23,7 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <PreprocessorDefinitions>WIN32;_WINDOWS;_USRDLL;STRICT_TYPED_ITEMIDS;NOMINMAX;WIN32_LEAN_AND_MEAN;VC_EXTRALEAN;SUPPORT_UTF8;%(PreprocessorDefinitions);PROJECT_NAME="$(ProjectName)"</PreprocessorDefinitions>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -124,5 +125,11 @@ xcopy /R /Y "$(OutputPath)$(TargetFileName)" "%appdata%/Rainmeter/Plugins/$(Targ
       <TargetMachine>MachineX64</TargetMachine>
     </Link>
   </ItemDefinitionGroup>
+
+  <ItemGroup>
+    <ClCompile Include="StdAfx.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+  </ItemGroup>
 
 </Project>

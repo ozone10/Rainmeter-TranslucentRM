@@ -3,8 +3,8 @@
 #define PLUGIN_NAME             "TranslucentRM"
 #define PLUGIN_VER_MAJOR        1
 #define PLUGIN_VER_MINOR        0
-#define PLUGIN_VER_REVISION     2
-#define PLUGIN_VER_BUILD        11
+#define PLUGIN_VER_REVISION     3
+#define PLUGIN_VER_BUILD        0
 #define PLUGIN_AUTHOR           "oZone"
 #define PLUGIN_YEAR             2019
 #define RAINMETER_VER_MAJOR     4

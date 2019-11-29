@@ -14,23 +14,4 @@
   along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-#pragma once
-
-// WinAPI
-#include <Windows.h>
-
-#include <dwmapi.h>
-#include <VersionHelpers.h>
-
-// STL
-#include <stdexcept>
-#include <string>
-#include <vector>
-
-// Rainmeter API
-#include "../API/RainmeterAPI.h"
-
-#define UNUSED(expr)  \
-    do {              \
-        (void)(expr); \
-    } while (0)
+#include "StdAfx.h"
