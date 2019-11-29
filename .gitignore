@@ -1,3 +1,6 @@
+# Dot Files/Folder
+.*
+
 # Prerequisites
 *.d
 
@@ -40,6 +43,6 @@
 Build
 Intermediate
 
-.*
-
+# Visual Studio Generated
+*.aps
 *.vcxproj.user
