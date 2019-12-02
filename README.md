@@ -41,7 +41,7 @@ Must have option `Taskbar=0`.
   * Value **1** - enable border.
 
 ### Taskbar Options
-Must have option `Taskbar=1`
+Must have option `Taskbar=1`.  
 In taskbar mode plugin is working in parent-child measure style.
 
 #### Parent Measure
