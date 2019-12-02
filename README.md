@@ -23,14 +23,14 @@ Works in both modes.
 
 -   **Taskbar** - Option to choose plugin mode.
     -   Value **0** - skin mode, default value.
-    -   Value **1** - taskbar mode.  
+    -   Value **1** - taskbar mode.
 -   **Type** - Option to choose accent state.
     -   Value **0** - disabled state, default value.
     -   Value **1** - opaque, transparency is ignored.
     -   Value **2** - transparent, border option is ignored.
     -   Value **3** - blur, border option will disable color option.
     -   Value **4** - acrylic, border option will disable color option. _Note 1_
-    -   Value **6** - transparent, color option is ignored.  
+    -   Value **6** - transparent, color option is ignored.
 -   **Color** - Color in hex format RRGGBBAA or RRGGBB. Default value is 00000001.
 -   **AccentColor** - will use Windows 10 accent color, with transparency from color option (last 2 number - AA)
 
