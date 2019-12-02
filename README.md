@@ -129,7 +129,7 @@ Color=0063B1A0
 [SecondTaskbar]
 Measure=Plugin
 Plugin=TranslucentRM
-ParentName=Taskbar
+ParentName=MainTaskbar
 Index=1
 Type=1
 Color=A70013
