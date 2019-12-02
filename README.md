@@ -24,6 +24,7 @@ Works in both modes.
 -   **Taskbar** - Option to choose plugin mode.
     -   Value **0** - skin mode, default value.
     -   Value **1** - taskbar mode.
+
 -   **Type** - Option to choose accent state.
     -   Value **0** - disabled state, default value.
     -   Value **1** - opaque, transparency is ignored.
@@ -31,7 +32,9 @@ Works in both modes.
     -   Value **3** - blur, border option will disable color option.
     -   Value **4** - acrylic, border option will disable color option. _Note 1_
     -   Value **6** - transparent, color option is ignored.
+
 -   **Color** - Color in hex format RRGGBBAA or RRGGBB. Default value is 00000001.
+
 -   **AccentColor** - will use Windows 10 accent color, with transparency from color option (last 2 number - AA)
 
 **Note 1:** acrylic state is broken in Windows 10 build 10.0.18362, 1903 (May 2019 Update) and later. This is Windows 10 bug.
@@ -54,6 +57,7 @@ In taskbar mode plugin is working in parent-child measure style.
 -   **Info** - Option to choose which information will be shown in log (Skin Tab).
     -   Value **0** - show used accent state and plugin mode, default value.
     -   Value **1** - show monitor count and used color in hex format RRGGBB.
+
 -   **SecondMonitor** - Option to enable support for 2+ monitor setup and allow to use child measures.
     -   Value **0** - use only main monitor, default value.
     -   Value **1** - enable support for 2+ monitor setup.
@@ -61,6 +65,7 @@ In taskbar mode plugin is working in parent-child measure style.
 #### Child Measure
 
 -   **ParentName** - Name of parent measure. Parent measure must have option `SecondMonitor=1`.
+
 -   **Index** - Option to select second monitor.
     -   Value **0** - disable measure, default value.
     -   Value **_N_** - index of second monitors, it is in range from 0 to (number of monitor - 1).  
