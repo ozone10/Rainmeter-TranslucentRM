@@ -22,10 +22,12 @@ This plugin has two measure mode one for taskbar and other for skin.
 Works in both modes.
 
 -   **Taskbar** - Option to choose plugin mode.
+
     -   Value **0** - skin mode, default value.
     -   Value **1** - taskbar mode.
 
 -   **Type** - Option to choose accent state.
+
     -   Value **0** - disabled state, default value.
     -   Value **1** - opaque, transparency is ignored.
     -   Value **2** - transparent, border option is ignored.
@@ -55,6 +57,7 @@ In taskbar mode plugin is working in parent-child measure style.
 #### Parent Measure
 
 -   **Info** - Option to choose which information will be shown in log (Skin Tab).
+
     -   Value **0** - show used accent state and plugin mode, default value.
     -   Value **1** - show monitor count and used color in hex format RRGGBB.
 
