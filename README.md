@@ -64,7 +64,7 @@ In taskbar mode plugin is working in parent-child measure style.
 
 -   **SecondMonitor** - Option to enable support for 2+ monitor setup and allow to use child measures.
     -   Value **0** - use only main monitor, default value.
-    -   Value **1** - enable support for 2+ monitor setup.
+    -   Value **1** - enable support for 2+ monitor setup. _Note 2_
 
 #### Child Measure
 
@@ -73,6 +73,8 @@ In taskbar mode plugin is working in parent-child measure style.
 -   **Index** - Option to select second monitor.
     -   Value **0** - disable measure, default value.
     -   Value **_N_** - index of second monitors, it is in range from 0 to (number of monitor - 1).  
+
+**Note 2:** if child measure is not used, style from parent measure will be applied on all taskbars.
 
 * * *
 
@@ -133,4 +135,16 @@ ParentName=MainTaskbar
 Index=1
 Type=1
 Color=A70013
+```
+
+-   **Example 5:**
+    Set taskbars to have same style. In this case transparent style.
+
+```ini
+[Taskbars]
+Measure=Plugin
+Plugin=TranslucentRM
+Taskbar=1
+SecondMonitor=1
+Type=6
 ```
