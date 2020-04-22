@@ -14,6 +14,16 @@ For more information, check the [Rainmeter forum](https://forum.rainmeter.net/vi
 
 * * *
 
+<p align="center">
+<img src="https://i.imgur.com/aaIuWs1.png">
+  <img src="https://i.imgur.com/jyUrTar.png">
+  <img src="https://i.imgur.com/zYt37SA.png">
+  <img src="https://i.imgur.com/EJGMumj.png">
+  <img src="https://i.imgur.com/Qj7ePGZ.png">
+</p>
+
+* * *
+
 ## Options
 
 This plugin has two measure mode one for taskbar and other for skin.
