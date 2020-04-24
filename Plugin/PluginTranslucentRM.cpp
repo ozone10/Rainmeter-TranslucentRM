@@ -338,8 +338,8 @@ void CheckFeaturesSupport(struct Measure* measure, void* rm)
 
 void CheckErrors(struct ChildMeasure* childMeasure)
 {
-    if (!validWinVersion) {
-        RmLog(LOG_WARNING, L"TranslucentRM plugin is supported only on Windows 10.");
+    if (childMeasure->parent == nullptr) {
+        RmLog(LOG_ERROR, L"Invalid \"ParentName\"");
         return;
     }
 
@@ -358,6 +358,7 @@ PLUGIN_EXPORT void Initialize(void** data, void* rm)
         return;
     }
     validWinVersion = true;
+
     auto child = new ChildMeasure;
     *data = child;
 
@@ -404,7 +405,7 @@ PLUGIN_EXPORT void Reload(void* data, void* rm, double* /*maxValue*/)
     auto child = static_cast<ChildMeasure*>(data);
     auto parent = child->parent;
 
-    if (parent->taskbar) {
+    if (parent != nullptr && parent->taskbar) {
         InitColor(child, rm);
     }
 }
@@ -489,11 +490,15 @@ PLUGIN_EXPORT LPCWSTR GetString(void* data)
 
 PLUGIN_EXPORT void Finalize(void* data)
 {
+    if (!validWinVersion) {
+        RmLog(LOG_WARNING, L"TranslucentRM plugin is supported only on Windows 10.");
+        return;
+    }
+
     auto child = static_cast<ChildMeasure*>(data);
     auto parent = child->parent;
 
-    if (validWinVersion &&
-        parent != nullptr &&
+    if (parent != nullptr &&
         parent->ownerChild == child)
     {
         if (!child->parent->errorUser32) {

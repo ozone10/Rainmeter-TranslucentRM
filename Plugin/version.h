@@ -3,7 +3,7 @@
 #define VER_PLUGIN_NAME_STR     "TranslucentRM"
 #define VER_PLUGIN_MAJOR        1
 #define VER_PLUGIN_MINOR        0
-#define VER_PLUGIN_REVISION     4
+#define VER_PLUGIN_REVISION     5
 #define VER_PLUGIN_BUILD        0
 #define VER_PLUGIN_AUTHOR_STR   "oZone"
 #define VER_PLUGIN_YEAR         2020
