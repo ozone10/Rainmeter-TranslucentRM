@@ -12,6 +12,8 @@ Minimal requirements is Windows 10. For acrylic option Windows 10 build 10.0.171
 
 For more information, check the [Rainmeter forum](https://forum.rainmeter.net/viewtopic.php?f=128&p=165921).
 
+Check my other Rainmeter plugin [DarkContextMenu](https://github.com/ozone10/Rainmeter-DarkContextMenu).
+
 * * *
 
 <p align="center">
