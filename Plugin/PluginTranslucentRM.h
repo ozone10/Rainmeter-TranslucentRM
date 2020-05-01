@@ -97,7 +97,9 @@ struct ChildMeasure : public Measure {
     int taskbarIdx = 0;
 };
 
-void SetWindowAccent(struct ChildMeasure* measure, HWND hwnd);
+inline bool IsAtLeastWin10Build(DWORD buildNumber);
+
+void SetWindowAccent(struct ChildMeasure* measure, HWND hWnd);
 
 inline BOOL CALLBACK MonitorEnumProc(HMONITOR hMonitor, HDC hdcMonitor, LPRECT lprcMonitor, LPARAM dwData);
 inline int CountMonitor(void* rm);

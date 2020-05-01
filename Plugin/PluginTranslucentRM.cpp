@@ -36,33 +36,29 @@ inline bool IsAtLeastWin10Build(DWORD buildNumber)
     OSVERSIONINFOEXW osvi;
     osvi.dwOSVersionInfoSize = sizeof(osvi);
     osvi.dwBuildNumber = buildNumber;
-    return VerifyVersionInfoW(&osvi, VER_BUILDNUMBER, mask) != FALSE;
+    return VerifyVersionInfo(&osvi, VER_BUILDNUMBER, mask) != FALSE;
 }
 
-void SetWindowAccent(struct ChildMeasure* measure, HWND hwnd)
+void SetWindowAccent(struct ChildMeasure* measure, HWND hWnd)
 {
     if (validWinVersion &&
         !measure->parent->errorUser32 &&
         (!measure->parent->taskbar ||
             measure->accentState != AccentTypes::ACCENT_DISABLED))
     {
-        using SWCA = bool(WINAPI*)(HWND, WINCOMPATTRDATA*);
+        using SWCA = bool (WINAPI*)(HWND hWnd, WINCOMPATTRDATA* wcaData);
         const auto _SetWindowCompositionAttribute = reinterpret_cast<SWCA>(GetProcAddress(hUser32, "SetWindowCompositionAttribute"));
 
         if (_SetWindowCompositionAttribute != nullptr) {
             ACCENTPOLICY policy = { measure->accentState, measure->flags, measure->color, 0 };
             WINCOMPATTRDATA data = { WCA_ACCENT_POLICY, &policy, sizeof(ACCENTPOLICY) };
-            _SetWindowCompositionAttribute(hwnd, &data);
+            _SetWindowCompositionAttribute(hWnd, &data);
         }
     }
 }
 
-BOOL CALLBACK MonitorEnumProc(HMONITOR hMonitor, HDC hdcMonitor, LPRECT lprcMonitor, LPARAM dwData)
+BOOL CALLBACK MonitorEnumProc(HMONITOR /*hMonitor*/, HDC /*hdcMonitor*/, LPRECT /*lprcMonitor*/, LPARAM dwData)
 {
-    UNUSED(hMonitor);
-    UNUSED(hdcMonitor);
-    UNUSED(lprcMonitor);
-
     auto count = reinterpret_cast<int*>(dwData);
     (*count)++;
     return TRUE;
@@ -81,7 +77,7 @@ int CountMonitor(void* rm)
 
 void EnumTaskbars(struct ParentMeasure* parentMeasure, void* rm)
 {
-    HWND tmpTaskbar = FindWindowW(L"Shell_SecondaryTrayWnd", nullptr);
+    HWND tmpTaskbar = FindWindow(L"Shell_SecondaryTrayWnd", nullptr);
     if (tmpTaskbar == nullptr) {
         return;
     }
@@ -89,7 +85,7 @@ void EnumTaskbars(struct ParentMeasure* parentMeasure, void* rm)
     parentMeasure->monitorCount = CountMonitor(rm);
     parentMeasure->taskbars.push_back(tmpTaskbar);
     int guardCounter = 0;
-    while ((tmpTaskbar = FindWindowExW(nullptr, tmpTaskbar, L"Shell_SecondaryTrayWnd", L"")) != nullptr) {
+    while ((tmpTaskbar = FindWindowEx(nullptr, tmpTaskbar, L"Shell_SecondaryTrayWnd", L"")) != nullptr) {
         if (guardCounter >= (parentMeasure->monitorCount - 1)) {
             break;
         }
@@ -105,7 +101,7 @@ void SetTaskbars(struct ParentMeasure* parentMeasure, bool enableAccent)
             SetWindowAccent(parentMeasure->ownerChild, taskbar);
         }
         else {
-            SendMessageW(taskbar, WM_THEMECHANGED, NULL, NULL);
+            SendMessage(taskbar, WM_THEMECHANGED, NULL, NULL);
         }
     }
 }
@@ -179,14 +175,14 @@ void SetColor(struct Measure* measure, void* rm)
 void GetAccentColor(struct Measure* measure)
 {
     if (!measure->errorDwmapi && validWinVersion) {
-        const HMODULE hDwmapi = LoadLibraryExW(L"dwmapi.dll", nullptr, LOAD_LIBRARY_SEARCH_SYSTEM32);
+        const HMODULE hDwmapi = LoadLibraryEx(L"dwmapi.dll", nullptr, LOAD_LIBRARY_SEARCH_USER_DIRS | LOAD_LIBRARY_SEARCH_SYSTEM32);
 
         if (hDwmapi == nullptr) {
             measure->errorDwmapi = true;
             return;
         }
 
-        using DGCP = HRESULT(WINAPI*)(DWMCOLORIZATIONPARAMS * colorParams);
+        using DGCP = HRESULT (WINAPI*)(DWMCOLORIZATIONPARAMS * colorParams);
         const auto _DwmGetColorizationParameters = reinterpret_cast<DGCP>(GetProcAddress(hDwmapi, MAKEINTRESOURCEA(127)));
 
         if (_DwmGetColorizationParameters != nullptr) {
@@ -267,7 +263,7 @@ void SetBorder(struct Measure* measure)
 void InitParentMeasure(struct ParentMeasure* parentMeasure, void* rm)
 {
     auto parent = parentMeasure->ownerChild;
-    hUser32 = LoadLibraryExW(L"user32.dll", nullptr, LOAD_LIBRARY_SEARCH_SYSTEM32);
+    hUser32 = LoadLibraryEx(L"user32.dll", nullptr, LOAD_LIBRARY_SEARCH_USER_DIRS | LOAD_LIBRARY_SEARCH_SYSTEM32);
     if (hUser32 == nullptr) {
         parentMeasure->errorUser32 = true;
         return;
@@ -510,7 +506,7 @@ PLUGIN_EXPORT void Finalize(void* data)
                     SetTaskbars(parent, false);
                 }
                 else {
-                    SendMessageW(parent->taskbars.at(0), WM_THEMECHANGED, NULL, NULL);
+                    SendMessage(parent->taskbars.at(0), WM_THEMECHANGED, NULL, NULL);
                 }
                 std::vector<HWND>().swap(parent->taskbars);
             }
