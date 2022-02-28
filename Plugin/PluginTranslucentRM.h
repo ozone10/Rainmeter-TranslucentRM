@@ -17,18 +17,20 @@
 #pragma once
 
 // Won't support outdated insider builds
-//const DWORD MIN_FLUENT_BUILD = 17063;
+//constexpr DWORD MIN_FLUENT_BUILD = 17063;
 
-const DWORD BUILD_1803 = 17134; // Windows 10 1803 (April 2018 Update)
-const DWORD BUILD_1903 = 18362; // Windows 10 1903 (May 2019 Update)
+constexpr DWORD BUILD_1803 = 17134; // Windows 10 1803 (April 2018 Update)
+constexpr DWORD BUILD_1903 = 18362; // Windows 10 1903 (May 2019 Update)
 
-const uint32_t MIN_TRANPARENCY = 0x01000000;
+constexpr DWORD BUILD_WIN11 = 22000; // Windows 11 first "stable" build
 
-const int32_t BORDER = 0x1E0; //0x20U | 0x40U | 0x80U | 0x100U;
+constexpr uint32_t MIN_TRANPARENCY = 0x01000000;
 
-const uint32_t WCA_ACCENT_POLICY = 19;
+constexpr int32_t BORDER = 0x1E0; //0x20U | 0x40U | 0x80U | 0x100U;
 
-const int DEFAULT_MONITOR_COUNT = 5;
+constexpr uint32_t WCA_ACCENT_POLICY = 19;
+
+constexpr int DEFAULT_MONITOR_COUNT = 5;
 
 enum class AccentTypes : int {
     ACCENT_DISABLED = 0,
@@ -75,6 +77,9 @@ struct Measure {
     bool altInfo = false;
     bool warn = false;
     bool errorDwmapi = false;
+
+    uint32_t colorBorder = 0x002B2B2B;
+    DWM_WINDOW_CORNER_PREFERENCE corner = DWMWCP_DONOTROUND;
 };
 
 struct ChildMeasure;
@@ -99,22 +104,24 @@ struct ChildMeasure : public Measure {
 
 inline bool IsAtLeastWin10Build(DWORD buildNumber);
 
-void SetWindowAccent(struct ChildMeasure* measure, HWND hWnd);
+void SetWindowAccent(const struct ChildMeasure* measure, HWND hWnd);
 
 inline BOOL CALLBACK MonitorEnumProc(HMONITOR hMonitor, HDC hdcMonitor, LPRECT lprcMonitor, LPARAM dwData);
 inline int CountMonitor(void* rm);
 void EnumTaskbars(struct ParentMeasure* parentMeasure, void* rm);
 void SetTaskbars(struct ParentMeasure* parentMeasure, bool enableAccent);
 
-void SetColor(struct Measure* measure, void* rm);
-inline void GetAccentColor(struct Measure* measure);
+void SetColor(struct Measure* measure, void* rm, bool isBorderColor);
+inline void GetAccentColor(struct Measure* measure, bool isBorderColor);
 inline void InitColor(struct Measure* measure, void* rm);
 inline void SetType(struct Measure* measure, void* rm);
 inline void SetMinTransparency(struct Measure* measure);
 inline void SetBorder(struct Measure* measure);
+void SetBorderColor(struct Measure* measure, void* rm);
+void SetCorner(struct Measure* measure, void* rm);
 
 void InitParentMeasure(struct ParentMeasure* parentMeasure, void* rm);
 void InitChildMeasure(struct ChildMeasure* childMeasure, void* rm);
 
 void CheckFeaturesSupport(struct Measure* measure, void* rm);
-void CheckErrors(struct ChildMeasure* childMeasure);
+void CheckErrors(const struct ChildMeasure* childMeasure);

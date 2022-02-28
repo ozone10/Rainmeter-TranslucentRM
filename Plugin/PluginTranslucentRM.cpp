@@ -22,6 +22,7 @@
 // For more information, see the SDK docs: https://docs.rainmeter.net/developers/plugin/cpp/
 
 static bool validWinVersion = false;
+static bool isWin11 = false;
 static HMODULE hUser32 = nullptr;
 static std::vector<ParentMeasure*> g_ParentMeasures;
 
@@ -39,7 +40,7 @@ inline bool IsAtLeastWin10Build(DWORD buildNumber)
     return VerifyVersionInfo(&osvi, VER_BUILDNUMBER, mask) != FALSE;
 }
 
-void SetWindowAccent(struct ChildMeasure* measure, HWND hWnd)
+void SetWindowAccent(const struct ChildMeasure* measure, HWND hWnd)
 {
     if (validWinVersion &&
         !measure->parent->errorUser32 &&
@@ -106,10 +107,13 @@ void SetTaskbars(struct ParentMeasure* parentMeasure, bool enableAccent)
     }
 }
 
-void SetColor(struct Measure* measure, void* rm)
+void SetColor(struct Measure* measure, void* rm, bool isBorderColor)
 {
-    measure->color = MIN_TRANPARENCY;
-    std::wstring colorStr = RmReadString(rm, L"Color", L"00000001", TRUE);
+    auto* color = isBorderColor ? &measure->colorBorder : &measure->color;
+    *color = MIN_TRANPARENCY;
+
+    auto optionStr = isBorderColor ? L"BorderColor" : L"Color";
+    std::wstring colorStr = RmReadString(rm, optionStr, L"00000001", TRUE);
     if (_wcsnicmp(colorStr.c_str(), L"-", 1) == 0U) {
         colorStr = colorStr.substr(1, colorStr.size());
     }
@@ -118,61 +122,61 @@ void SetColor(struct Measure* measure, void* rm)
         colorStr = colorStr.substr(2, colorStr.size());
     }
 
-    const size_t RGBAStrSize = 8;
-    const size_t RGBStrSize = 6;
+    constexpr size_t RGBAStrSize = 8;
+    constexpr size_t RGBStrSize = 6;
     const size_t strSize = colorStr.size();
 
     if (strSize > RGBAStrSize || strSize < RGBStrSize) {
         measure->warn = true;
-        measure->color = MIN_TRANPARENCY;
+        *color = MIN_TRANPARENCY;
         return;
     }
 
     try {
-        const int hexBase = 16;
-        measure->color = std::stoul(colorStr, nullptr, hexBase);
+        constexpr int hexBase = 16;
+        *color = std::stoul(colorStr, nullptr, hexBase);
     }
     catch (const std::invalid_argument&) {
         measure->warn = true;
-        measure->color = MIN_TRANPARENCY;
+        *color = MIN_TRANPARENCY;
         return;
     }
 
-    const uint32_t bitwiseShift4 = 4;
-    const uint32_t bitwiseShift8 = 8;
-    const uint32_t bitwiseShift24 = 24;
+    constexpr uint32_t bitwiseShift4 = 4;
+    constexpr uint32_t bitwiseShift8 = 8;
+    constexpr uint32_t bitwiseShift24 = 24;
 
-    const uint32_t maskAA = 0xFF;
-    const uint32_t maskBB = 0xFF00;
-    const uint32_t maskGG = 0xFF0000;
-    const uint32_t maskRR = 0xFF000000;
+    constexpr uint32_t maskAA = 0xFF;
+    constexpr uint32_t maskBB = 0xFF00;
+    constexpr uint32_t maskGG = 0xFF0000;
+    constexpr uint32_t maskRR = 0xFF000000;
 
     if (strSize < RGBAStrSize) {
-        measure->color <<= bitwiseShift4;
+        *color <<= bitwiseShift4;
         if (strSize == RGBStrSize) {
-            measure->color <<= bitwiseShift4;
+            *color <<= bitwiseShift4;
         }
     }
 
     measure->accentColor = RmReadInt(rm, L"AccentColor", 0) > 0;
     if (measure->accentColor &&
-        (measure->accentState != AccentTypes::ACCENT_ENABLE_BLURBEHIND ||
-            !measure->border)) {
-        GetAccentColor(measure);
+        measure->accentState != AccentTypes::ACCENT_ENABLE_BLURBEHIND)
+    {
+        GetAccentColor(measure, isBorderColor);
     }
 
     wchar_t buffer[RGBStrSize + 1];
-    swprintf_s(buffer, L"%06X", (measure->color >> bitwiseShift8));
+    swprintf_s(buffer, L"%06X", (*color >> bitwiseShift8));
     measure->hexColor = buffer;
 
     // Transform RRGGBBAA to AABBRRGG
-    measure->color = (((measure->color & maskAA) << bitwiseShift24) |
-        ((measure->color & maskRR) >> bitwiseShift24) |
-        ((measure->color & maskBB) << bitwiseShift8) |
-        ((measure->color & maskGG) >> bitwiseShift8));
+    *color = (((*color & maskAA) << bitwiseShift24) |
+        ((*color & maskRR) >> bitwiseShift24) |
+        ((*color & maskBB) << bitwiseShift8) |
+        ((*color & maskGG) >> bitwiseShift8));
 }
 
-void GetAccentColor(struct Measure* measure)
+void GetAccentColor(struct Measure* measure, bool isBorderColor)
 {
     if (!measure->errorDwmapi && validWinVersion) {
         const HMODULE hDwmapi = LoadLibraryEx(L"dwmapi.dll", nullptr, LOAD_LIBRARY_SEARCH_USER_DIRS | LOAD_LIBRARY_SEARCH_SYSTEM32);
@@ -189,13 +193,17 @@ void GetAccentColor(struct Measure* measure)
             struct DWMCOLORIZATIONPARAMS params;
             _DwmGetColorizationParameters(&params);
 
-            const uint32_t bitwiseShift8 = 8;
-            const uint32_t maskAA = 0xFF;
-            const uint32_t maskColor = 0xFFFFFF;
+            constexpr uint32_t bitwiseShift8 = 8;
+            constexpr uint32_t maskAA = 0xFF;
+            constexpr uint32_t maskColor = 0xFFFFFF;
+            constexpr uint32_t maskColor2 = 0xFFFFFF00;
 
-            //use user defined alpha
+            auto colorMeasure = isBorderColor ? &measure->colorBorder : &measure->color;
+
+            //use user defined alpha, ignore it for border color
             //transform AARRGGBB format to RRGGBBAA
-            measure->color = (measure->color & maskAA) | ((params.dmwColor & maskColor) << bitwiseShift8);
+            auto colorTmp = (*colorMeasure & maskAA) | ((params.dmwColor & maskColor) << bitwiseShift8);
+            *colorMeasure = isBorderColor ? (colorTmp & maskColor2) : colorTmp;
         }
         FreeLibrary(hDwmapi);
     }
@@ -203,7 +211,7 @@ void GetAccentColor(struct Measure* measure)
 
 void InitColor(struct Measure* measure, void* rm)
 {
-    SetColor(measure, rm);
+    SetColor(measure, rm, false);
 
     if (RmReadInt(rm, L"DisableColorWarning", 0) > 0) {
         measure->warn = false;
@@ -215,14 +223,13 @@ void InitColor(struct Measure* measure, void* rm)
 
 void SetType(struct Measure* measure, void* rm)
 {
-    int type = RmReadInt(rm, L"Type", 0);
+    const int type = RmReadInt(rm, L"Type", 0);
     switch (type) {
     case 1:
         measure->accentState = AccentTypes::ACCENT_ENABLE_GRADIENT;
         break;
     case 2:
         measure->accentState = AccentTypes::ACCENT_ENABLE_TRANSPARENTGRADIENT;
-        measure->flags = 2;
         break;
     case 3:
         measure->accentState = AccentTypes::ACCENT_ENABLE_BLURBEHIND;
@@ -231,6 +238,9 @@ void SetType(struct Measure* measure, void* rm)
     case 4:
         measure->accentState = AccentTypes::ACCENT_ENABLE_ACRYLICBLURBEHIND;
         SetMinTransparency(measure);
+        break;
+    case 5:
+        measure->accentState = AccentTypes::ACCENT_ENABLE_HOSTBACKDROP;
         break;
     case 6:
         measure->accentState = AccentTypes::ACCENT_ENABLE_TRANSPARENT;
@@ -244,7 +254,7 @@ void SetType(struct Measure* measure, void* rm)
 
 void SetMinTransparency(struct Measure* measure)
 {
-    const uint32_t onlyColor = 0xFFFFFF;
+    constexpr uint32_t onlyColor = 0xFFFFFF;
     if (measure->color <= onlyColor) {
         measure->color += MIN_TRANPARENCY;
     }
@@ -252,11 +262,57 @@ void SetMinTransparency(struct Measure* measure)
 
 void SetBorder(struct Measure* measure)
 {
-    if (measure->border) {
+    if ((measure->border &&
+        measure->accentState != AccentTypes::ACCENT_ENABLE_TRANSPARENTGRADIENT) ||
+        (isWin11 &&
+            (measure->corner == DWMWCP_ROUND ||
+                measure->corner == DWMWCP_ROUNDSMALL)))
+    {
         measure->flags = BORDER;
     }
     else {
         measure->flags = 2;
+    }
+}
+
+void SetBorderColor(struct Measure* measure, void* rm)
+{
+    if (isWin11 && 
+    (measure->corner == DWMWCP_ROUND ||
+        measure->corner == DWMWCP_ROUNDSMALL))
+        {
+            SetColor(measure, rm, true);
+            const COLORREF color = measure->colorBorder;
+            DwmSetWindowAttribute(RmGetSkinWindow(rm), DWMWA_BORDER_COLOR, &color, sizeof(color));
+        }
+}
+
+void SetCorner(struct Measure* measure, void* rm)
+{
+    const int cornerType = RmReadInt(rm, L"Corner", 1);
+    if (isWin11) {
+        switch (cornerType) {
+        case 0:
+            measure->corner = DWMWCP_DEFAULT;
+            break;
+        case 2:
+            measure->corner = DWMWCP_ROUND;
+            measure->flags = BORDER;
+            break;
+        case 3:
+            measure->corner = DWMWCP_ROUNDSMALL;
+            measure->flags = BORDER;
+            break;
+        default:
+            measure->corner = DWMWCP_DONOTROUND;
+        }
+
+        DwmSetWindowAttribute(RmGetSkinWindow(rm), DWMWA_WINDOW_CORNER_PREFERENCE, &measure->corner, sizeof(measure->corner));
+    }
+    else {
+        if (cornerType == 2 || cornerType == 3) {
+            RmLog(rm, LOG_DEBUG, L"Rounded corners are supported only on Windows 11 build 22000 and later.");
+        }
     }
 }
 
@@ -285,7 +341,9 @@ void InitParentMeasure(struct ParentMeasure* parentMeasure, void* rm)
         parent->handle = RmGetSkinWindow(rm);
         parent->border = RmReadInt(rm, L"Border", 0) > 0;
         SetBorder(parent);
+        SetCorner(parent, rm);
         SetWindowAccent(parent, parent->handle);
+        SetBorderColor(parent, rm);
     }
 
     CheckFeaturesSupport(parent, rm);
@@ -318,11 +376,11 @@ void InitChildMeasure(struct ChildMeasure* childMeasure, void* rm)
 
 void CheckFeaturesSupport(struct Measure* measure, void* rm)
 {
-    bool useAcrylic = measure->accentState == AccentTypes::ACCENT_ENABLE_ACRYLICBLURBEHIND;
+    const bool useAcrylic = measure->accentState == AccentTypes::ACCENT_ENABLE_ACRYLICBLURBEHIND;
 
     if (useAcrylic) {
-        if (IsAtLeastWin10Build(BUILD_1903)) {
-            RmLog(rm, LOG_DEBUG, L"On Windows 10 1903 (May 2019 update, 10.0.18362) and later when using acrylic (Type=4), dragging skin will be slow.");
+        if (IsAtLeastWin10Build(BUILD_1903) && !IsAtLeastWin10Build(BUILD_WIN11)) {
+            RmLog(rm, LOG_DEBUG, L"On Windows 10 1903 (May 2019 update, 10.0.18362) and later when using acrylic (Type=4), dragging skin will be slow. Fixed in Windows 11 build 22000?");
         }
 
         if (!IsAtLeastWin10Build(BUILD_1803)) {
@@ -330,9 +388,14 @@ void CheckFeaturesSupport(struct Measure* measure, void* rm)
             RmLog(rm, LOG_WARNING, L"Acrylic is not supported, need at least Windows 10 1803 (April 2018 update, 10.0.17134). Will use blur instead.");
         }
     }
+    else if (measure->accentState == AccentTypes::ACCENT_ENABLE_BLURBEHIND &&
+        isWin11)
+    {
+        RmLog(rm, LOG_DEBUG, L"On Windows 11 build 22000 when using blur (Type=3), dragging skin can be slow.");
+    }
 }
 
-void CheckErrors(struct ChildMeasure* childMeasure)
+void CheckErrors(const struct ChildMeasure* childMeasure)
 {
     if (childMeasure->parent == nullptr) {
         RmLog(LOG_ERROR, L"Invalid \"ParentName\"");
@@ -344,7 +407,7 @@ void CheckErrors(struct ChildMeasure* childMeasure)
     }
 
     if (childMeasure->errorDwmapi) {
-        RmLog(LOG_WARNING, L"TranslucentRM plugin could not load library dwmapi.dll. Accent Color will not be applied.");
+        RmLog(LOG_WARNING, L"TranslucentRM plugin could not load library dwmapi.dll. Accent color and rounded corners will not be applied.");
     }
 }
 
@@ -354,6 +417,8 @@ PLUGIN_EXPORT void Initialize(void** data, void* rm)
         return;
     }
     validWinVersion = true;
+
+    isWin11 = IsAtLeastWin10Build(BUILD_WIN11);
 
     auto child = new ChildMeasure;
     *data = child;
@@ -487,7 +552,7 @@ PLUGIN_EXPORT LPCWSTR GetString(void* data)
 PLUGIN_EXPORT void Finalize(void* data)
 {
     if (!validWinVersion) {
-        RmLog(LOG_WARNING, L"TranslucentRM plugin is supported only on Windows 10.");
+        RmLog(LOG_WARNING, L"TranslucentRM plugin is supported only on Windows 10 and 11.");
         return;
     }
 
