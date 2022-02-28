@@ -6,7 +6,7 @@
 #define VER_PLUGIN_REVISION     5
 #define VER_PLUGIN_BUILD        0
 #define VER_PLUGIN_AUTHOR_STR   "oZone"
-#define VER_PLUGIN_YEAR         2020
+#define VER_PLUGIN_YEAR         2022
 #define VER_RAINMETER_MAJOR     4
 #define VER_RAINMETER_MINOR     4
 #define VER_RAINMETER_REVISION  0
