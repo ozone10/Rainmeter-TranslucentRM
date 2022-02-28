@@ -68,9 +68,9 @@ Must have option `Taskbar=0`.
   - Value **0** - let system decide, usually not rounded corners.
   - Value **1** - don't round corners, default value.
   - Value **2** - round corners.
-  - Value **1** - small round corners.
+  - Value **3** - small round corners.
 
-- **BorderColor** - Color in hex format RRGGBB.
+- **BorderColor** - Color in hex format RRGGBB. Corner option must have value 2 or 3.
 
 ### Taskbar Options
 
