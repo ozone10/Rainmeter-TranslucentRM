@@ -23,6 +23,7 @@
 
 static bool validWinVersion = false;
 static bool isWin11 = false;
+static bool isWin11Mica = false;
 static HMODULE hUser32 = nullptr;
 static std::vector<ParentMeasure*> g_ParentMeasures;
 
@@ -34,7 +35,7 @@ inline bool IsAtLeastWin10Build(DWORD buildNumber)
 
     const auto mask = VerSetConditionMask(0, VER_BUILDNUMBER, VER_GREATER_EQUAL);
 
-    OSVERSIONINFOEXW osvi;
+    OSVERSIONINFOEXW osvi{};
     osvi.dwOSVersionInfoSize = sizeof(osvi);
     osvi.dwBuildNumber = buildNumber;
     return VerifyVersionInfo(&osvi, VER_BUILDNUMBER, mask) != FALSE;
@@ -42,8 +43,10 @@ inline bool IsAtLeastWin10Build(DWORD buildNumber)
 
 void SetWindowAccent(const struct ChildMeasure* measure, HWND hWnd)
 {
+    const bool useMica = (measure->mica != DWMSBT_NONE) && isWin11Mica;
     if (validWinVersion &&
         !measure->parent->errorUser32 &&
+        !useMica &&
         (!measure->parent->taskbar ||
             measure->accentState != AccentTypes::ACCENT_DISABLED))
     {
@@ -277,7 +280,7 @@ void SetBorder(struct Measure* measure)
 
 void SetBorderColor(struct Measure* measure, void* rm)
 {
-    if (isWin11 && 
+    if (isWin11 &&
     (measure->corner == DWMWCP_ROUND ||
         measure->corner == DWMWCP_ROUNDSMALL))
         {
@@ -309,10 +312,47 @@ void SetCorner(struct Measure* measure, void* rm)
 
         DwmSetWindowAttribute(RmGetSkinWindow(rm), DWMWA_WINDOW_CORNER_PREFERENCE, &measure->corner, sizeof(measure->corner));
     }
-    else {
-        if (cornerType == 2 || cornerType == 3) {
-            RmLog(rm, LOG_DEBUG, L"Rounded corners are supported only on Windows 11 build 22000 and later.");
+}
+
+void SetMica(struct Measure* measure, void* rm)
+{
+    const int type = RmReadInt(rm, L"Mica", 0);
+    if (isWin11Mica) {
+
+        switch (type) {
+        case 1:
+            measure->mica = DWMSBT_AUTO;
+            measure->accentState = AccentTypes::ACCENT_DISABLED;
+            break;
+        case 2:
+            measure->mica = DWMSBT_MAINWINDOW;
+            measure->accentState = AccentTypes::ACCENT_DISABLED;
+            break;
+        case 3:
+            measure->mica = DWMSBT_TRANSIENTWINDOW;
+            measure->accentState = AccentTypes::ACCENT_DISABLED;
+            break;
+        case 4:
+            measure->mica = DWMSBT_TABBEDWINDOW;
+            measure->accentState = AccentTypes::ACCENT_DISABLED;
+            break;
+        default:
+            measure->mica = DWMSBT_NONE;
         }
+
+        const MARGINS margins = { -1, -1, -1, -1};
+        auto hwnd = RmGetSkinWindow(rm);
+        DwmExtendFrameIntoClientArea(hwnd, &margins);
+        DwmSetWindowAttribute(hwnd, DWMWA_SYSTEMBACKDROP_TYPE, &measure->mica, sizeof(measure->mica));
+    }
+    else if (isWin11) {
+        
+        const MARGINS margins = { -1, -1, -1, -1 };
+        auto hwnd = RmGetSkinWindow(rm);
+        DwmExtendFrameIntoClientArea(hwnd, &margins);
+
+        BOOL useMica = type > 0 ? TRUE : FALSE;
+        DwmSetWindowAttribute(RmGetSkinWindow(rm), DWMWA_MICA_EFFECT, &useMica, sizeof(useMica));
     }
 }
 
@@ -342,6 +382,7 @@ void InitParentMeasure(struct ParentMeasure* parentMeasure, void* rm)
         parent->border = RmReadInt(rm, L"Border", 0) > 0;
         SetBorder(parent);
         SetCorner(parent, rm);
+        SetMica(parent, rm);
         SetWindowAccent(parent, parent->handle);
         SetBorderColor(parent, rm);
     }
@@ -379,7 +420,7 @@ void CheckFeaturesSupport(struct Measure* measure, void* rm)
     const bool useAcrylic = measure->accentState == AccentTypes::ACCENT_ENABLE_ACRYLICBLURBEHIND;
 
     if (useAcrylic) {
-        if (IsAtLeastWin10Build(BUILD_1903) && !IsAtLeastWin10Build(BUILD_WIN11)) {
+        if (IsAtLeastWin10Build(BUILD_1903) && !isWin11) {
             RmLog(rm, LOG_DEBUG, L"On Windows 10 1903 (May 2019 update, 10.0.18362) and later when using acrylic (Type=4), dragging skin will be slow. Fixed in Windows 11 build 22000?");
         }
 
@@ -388,10 +429,20 @@ void CheckFeaturesSupport(struct Measure* measure, void* rm)
             RmLog(rm, LOG_WARNING, L"Acrylic is not supported, need at least Windows 10 1803 (April 2018 update, 10.0.17134). Will use blur instead.");
         }
     }
-    else if (measure->accentState == AccentTypes::ACCENT_ENABLE_BLURBEHIND &&
-        isWin11)
-    {
-        RmLog(rm, LOG_DEBUG, L"On Windows 11 build 22000 when using blur (Type=3), dragging skin can be slow.");
+    else if (!isWin11Mica) {
+        if (RmReadInt(rm, L"Mica", 0) > 0) {
+            RmLog(rm, LOG_DEBUG, L"Mica transparency is properly supported only on Windows 11 build 22621 and later.");
+        }
+    }
+    else if (isWin11) {
+        if (measure->accentState == AccentTypes::ACCENT_ENABLE_BLURBEHIND) {
+            RmLog(rm, LOG_DEBUG, L"On Windows 11 build 22000 when using blur (Type=3), dragging skin can be slow.");
+        }
+    }
+    else {
+        if (measure->corner == DWMWCP_ROUND || measure->corner == DWMWCP_ROUNDSMALL) {
+            RmLog(rm, LOG_DEBUG, L"Rounded corners are supported only on Windows 11 build 22000 and later.");
+        }
     }
 }
 
@@ -418,7 +469,8 @@ PLUGIN_EXPORT void Initialize(void** data, void* rm)
     }
     validWinVersion = true;
 
-    isWin11 = IsAtLeastWin10Build(BUILD_WIN11);
+    isWin11Mica = IsAtLeastWin10Build(BUILD_22H2);
+    isWin11 = isWin11Mica ? true : IsAtLeastWin10Build(BUILD_WIN11);
 
     auto child = new ChildMeasure;
     *data = child;

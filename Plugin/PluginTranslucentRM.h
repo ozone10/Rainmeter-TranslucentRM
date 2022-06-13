@@ -23,12 +23,15 @@ constexpr DWORD BUILD_1803 = 17134; // Windows 10 1803 (April 2018 Update)
 constexpr DWORD BUILD_1903 = 18362; // Windows 10 1903 (May 2019 Update)
 
 constexpr DWORD BUILD_WIN11 = 22000; // Windows 11 first "stable" build
+constexpr DWORD BUILD_22H2 = 22621; // Windows 11 22H2 first to support mica properly
 
 constexpr uint32_t MIN_TRANPARENCY = 0x01000000;
 
 constexpr int32_t BORDER = 0x1E0; //0x20U | 0x40U | 0x80U | 0x100U;
 
 constexpr uint32_t WCA_ACCENT_POLICY = 19;
+
+constexpr uint32_t DWMWA_MICA_EFFECT = 1029; // Windows 11 Mica
 
 constexpr int DEFAULT_MONITOR_COUNT = 5;
 
@@ -78,6 +81,8 @@ struct Measure {
     bool warn = false;
     bool errorDwmapi = false;
 
+    DWM_SYSTEMBACKDROP_TYPE mica = DWMSBT_NONE;
+
     uint32_t colorBorder = 0x002B2B2B;
     DWM_WINDOW_CORNER_PREFERENCE corner = DWMWCP_DONOTROUND;
 };
@@ -119,6 +124,7 @@ inline void SetMinTransparency(struct Measure* measure);
 inline void SetBorder(struct Measure* measure);
 void SetBorderColor(struct Measure* measure, void* rm);
 void SetCorner(struct Measure* measure, void* rm);
+void SetMica(struct Measure* measure, void* rm);
 
 void InitParentMeasure(struct ParentMeasure* parentMeasure, void* rm);
 void InitChildMeasure(struct ChildMeasure* childMeasure, void* rm);
