@@ -24,6 +24,7 @@
 static bool validWinVersion = false;
 static bool isWin11 = false;
 static bool isWin11Mica = false;
+static bool isMicaFocus = false;
 static HMODULE hUser32 = nullptr;
 static std::vector<ParentMeasure*> g_ParentMeasures;
 
@@ -314,11 +315,10 @@ void SetCorner(struct Measure* measure, void* rm)
     }
 }
 
-void SetMica(struct Measure* measure, void* rm)
+void InitMica(struct Measure* measure, void* rm)
 {
     const int type = RmReadInt(rm, L"Mica", 0);
     if (isWin11Mica) {
-
         switch (type) {
         case 1:
             measure->mica = DWMSBT_AUTO;
@@ -340,19 +340,36 @@ void SetMica(struct Measure* measure, void* rm)
             measure->mica = DWMSBT_NONE;
         }
 
-        const MARGINS margins = { -1, -1, -1, -1};
-        auto hwnd = RmGetSkinWindow(rm);
-        DwmExtendFrameIntoClientArea(hwnd, &margins);
-        DwmSetWindowAttribute(hwnd, DWMWA_SYSTEMBACKDROP_TYPE, &measure->mica, sizeof(measure->mica));
+        if (measure->mica != DWMSBT_NONE) {
+            const auto hwnd = RmGetSkinWindow(rm);
+
+            if (!isMicaFocus) {
+                SetWindowPos(hwnd, nullptr, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_SHOWWINDOW);
+            }
+
+            const auto mica = DWMSBT_MAINWINDOW;
+            DwmSetWindowAttribute(hwnd, DWMWA_SYSTEMBACKDROP_TYPE, &mica, sizeof(mica));
+        }
     }
-    else if (isWin11) {
-        
-        const MARGINS margins = { -1, -1, -1, -1 };
-        auto hwnd = RmGetSkinWindow(rm);
+    //else if (isWin11) {
+    //    const MARGINS margins = { -1 };
+    //    DwmExtendFrameIntoClientArea(RmGetSkinWindow(rm), &margins);
+
+    //    BOOL useMica = type > 0 ? TRUE : FALSE;
+    //    DwmSetWindowAttribute(RmGetSkinWindow(rm), DWMWA_MICA_EFFECT, &useMica, sizeof(useMica));
+    //}
+}
+
+void SetMica(struct Measure* measure, HWND hwnd)
+{
+    if (isWin11Mica && measure->mica != DWMSBT_NONE) {
+        MARGINS margins = { 0, 0, 1, 0 };
         DwmExtendFrameIntoClientArea(hwnd, &margins);
 
-        BOOL useMica = type > 0 ? TRUE : FALSE;
-        DwmSetWindowAttribute(RmGetSkinWindow(rm), DWMWA_MICA_EFFECT, &useMica, sizeof(useMica));
+        margins = { -1 };
+        DwmExtendFrameIntoClientArea(hwnd, &margins);
+
+        DwmSetWindowAttribute(hwnd, DWMWA_SYSTEMBACKDROP_TYPE, &measure->mica, sizeof(measure->mica));
     }
 }
 
@@ -382,7 +399,7 @@ void InitParentMeasure(struct ParentMeasure* parentMeasure, void* rm)
         parent->border = RmReadInt(rm, L"Border", 0) > 0;
         SetBorder(parent);
         SetCorner(parent, rm);
-        SetMica(parent, rm);
+        InitMica(parent, rm);
         SetWindowAccent(parent, parent->handle);
         SetBorderColor(parent, rm);
     }
@@ -431,7 +448,7 @@ void CheckFeaturesSupport(struct Measure* measure, void* rm)
     }
     else if (!isWin11Mica) {
         if (RmReadInt(rm, L"Mica", 0) > 0) {
-            RmLog(rm, LOG_DEBUG, L"Mica transparency is properly supported only on Windows 11 build 22621 and later.");
+            RmLog(rm, LOG_DEBUG, L"Mica effects are properly supported only on Windows 11 build 22621 and later.");
         }
     }
     else if (isWin11) {
@@ -472,6 +489,7 @@ PLUGIN_EXPORT void Initialize(void** data, void* rm)
     isWin11Mica = IsAtLeastWin10Build(BUILD_22H2);
     isWin11 = isWin11Mica ? true : IsAtLeastWin10Build(BUILD_WIN11);
 
+    isMicaFocus = isWin11Mica && (RmReadInt(rm, L"MicaOnFocus", 0) > 0);
     auto child = new ChildMeasure;
     *data = child;
 
@@ -518,8 +536,13 @@ PLUGIN_EXPORT void Reload(void* data, void* rm, double* /*maxValue*/)
     auto child = static_cast<ChildMeasure*>(data);
     auto parent = child->parent;
 
-    if (parent != nullptr && parent->taskbar) {
-        InitColor(child, rm);
+    if (parent != nullptr) {
+        if (parent->taskbar) {
+            InitColor(child, rm);
+        }
+        else {
+            SetMica(child, child->handle);
+        }
     }
 }
 
@@ -544,6 +567,9 @@ PLUGIN_EXPORT double Update(void* data)
             else {
                 SetWindowAccent(child, parent->taskbars.at(0));
             }
+        }
+        else if (isMicaFocus) {
+            SetMica(child, child->handle);
         }
     }
     else {

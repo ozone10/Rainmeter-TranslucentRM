@@ -124,7 +124,8 @@ inline void SetMinTransparency(struct Measure* measure);
 inline void SetBorder(struct Measure* measure);
 void SetBorderColor(struct Measure* measure, void* rm);
 void SetCorner(struct Measure* measure, void* rm);
-void SetMica(struct Measure* measure, void* rm);
+void InitMica(struct Measure* measure, void* rm);
+void SetMica(struct Measure* measure, HWND hwnd);
 
 void InitParentMeasure(struct ParentMeasure* parentMeasure, void* rm);
 void InitChildMeasure(struct ChildMeasure* childMeasure, void* rm);
