@@ -7,7 +7,7 @@
 [![Licence](https://img.shields.io/github/license/ozone10/Rainmeter-TranslucentRM?color=9cf)](https://www.gnu.org/licenses/gpl-3.0.en.html)
 
 [Rainmeter](https://www.rainmeter.net) plugin that allows to create a blur/acrylic/transparent effect with color on the skin window or taskbar. This plugin has basic support for multimonitor setup.  
-Minimal requirements is Windows 10. For acrylic option Windows 10 build 10.0.17134, 1803 (April 2018 update). For corner and border color options Windows 11 build 22000.
+Minimal requirements is Windows 10. For acrylic option Windows 10 build 10.0.17134, 1803 (April 2018 update). For corner and border color options Windows 11 build 22000. For mica effects Windows 11 build 22621.
 
 For more information, check the [Rainmeter forum](https://forum.rainmeter.net/viewtopic.php?f=128&p=165921).
 
@@ -71,6 +71,16 @@ Must have option `Taskbar=0`.
   - Value **3** - small round corners.
 
 - **BorderColor** - Color in hex format RRGGBB. Corner option must have value 2 or 3.
+
+- **Mica** - Option to choose backdrop material (mica) effect type, will disable `Type` option. _Note 3_
+  - Value **0** - don't use mica, won't disable `Type` option, , default value.
+  - Value **1** - let system decide, usually transparent background (no mica effect).
+  - Value **2** - mica effect.
+  - Value **3** - acrylic effect.
+  - Value **4** - mica effect (found in tabbed apps).
+
+**Note 3:** mica effects require window (here skin) to have focus, if there is no focus mica will use solid color. Current workaround is not perfect, and skin can start or revert back to solid color state.  
+Mica is also affected by dark mode, which can be controled by my other Rainmeter plugin [DarkContextMenu](https://github.com/ozone10/Rainmeter-DarkContextMenu).
 
 ### Taskbar Options
 
@@ -181,4 +191,16 @@ Plugin=TranslucentRM
 Type=4
 Corner=2
 BorderColor=FFD700
+```
+
+- **Example 7:**
+    Skin with standard mica effect, small round corners and silver blue border.
+
+```ini
+[Mica]
+Measure=Plugin
+Plugin=TranslucentRM
+Mica=2
+Corner=3
+BorderColor=C4D4E0
 ```

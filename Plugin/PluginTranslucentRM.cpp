@@ -347,8 +347,7 @@ void InitMica(struct Measure* measure, void* rm)
                 SetWindowPos(hwnd, nullptr, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_SHOWWINDOW);
             }
 
-            const auto mica = DWMSBT_MAINWINDOW;
-            DwmSetWindowAttribute(hwnd, DWMWA_SYSTEMBACKDROP_TYPE, &mica, sizeof(mica));
+            DwmSetWindowAttribute(hwnd, DWMWA_SYSTEMBACKDROP_TYPE, &measure->mica, sizeof(measure->mica));
         }
     }
     //else if (isWin11) {
@@ -490,6 +489,7 @@ PLUGIN_EXPORT void Initialize(void** data, void* rm)
     isWin11 = isWin11Mica ? true : IsAtLeastWin10Build(BUILD_WIN11);
 
     isMicaFocus = isWin11Mica && (RmReadInt(rm, L"MicaOnFocus", 0) > 0);
+
     auto child = new ChildMeasure;
     *data = child;
 
