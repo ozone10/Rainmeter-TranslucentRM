@@ -1,7 +1,7 @@
 # Rainmeter-TranslucentRM
 
 [![Rainmeter](https://img.shields.io/badge/Rainmeter-Plugin-blue.svg?&logo=rainmeter)](https://www.rainmeter.net)
-[![Build status](https://img.shields.io/github/workflow/status/ozone10/Rainmeter-TranslucentRM/Build/master?logo=Github)](https://github.com/ozone10/Rainmeter-TranslucentRM/actions)
+[![Build status](https://img.shields.io/github/actions/workflow/status/ozone10/Rainmeter-TranslucentRM/build.yml?branch=master&logo=Github)](https://github.com/ozone10/Rainmeter-TranslucentRM/actions)
 [![Build status](https://img.shields.io/appveyor/ci/ozone10/Rainmeter-TranslucentRM/master?logo=Appveyor)](https://ci.appveyor.com/project/ozone10/rainmeter-translucentrm)
 [![Latest release](https://img.shields.io/github/v/release/ozone10/Rainmeter-TranslucentRM?include_prereleases)](https://github.com/ozone10/Rainmeter-TranslucentRM/releases/latest)
 [![Total downloads](https://img.shields.io/github/downloads/ozone10/Rainmeter-TranslucentRM/total.svg)](https://github.com/ozone10/Rainmeter-TranslucentRM/releases)
